@@ -5,6 +5,6 @@ website: http://wrenchbox.de
 version: 1.0
 description: Plant whole fields at once with one click.
 permissions:
-   easyplant.plant:
-     description: Plant the whole field at once.
-     default: true
+  easyplant.plant:
+    description: Plant the whole field at once.
+    default: true

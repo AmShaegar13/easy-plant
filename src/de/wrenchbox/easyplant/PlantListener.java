@@ -1,5 +1,6 @@
 package de.wrenchbox.easyplant;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.bukkit.Material;
@@ -27,13 +28,15 @@ public class PlantListener implements Listener {
 		}
 		Player player = event.getPlayer();
 
-		if(event.getClickedBlock().getType() == Material.SOIL && event.getItem() != null
-				&& (event.getItem().getType() == Material.SEEDS
-						|| event.getItem().getType() == Material.POTATO_ITEM
-						|| event.getItem().getType() == Material.CARROT_ITEM
-						|| event.getItem().getType() == Material.MELON_SEEDS
-						|| event.getItem().getType() == Material.PUMPKIN_SEEDS)) {
-			if(!player.hasPermission("easyplant.plant")) {
+		HashMap<Material, String> types = new HashMap<Material, String>();
+		types.put(Material.SEEDS, "seeds");
+		types.put(Material.POTATO_ITEM, "potato");
+		types.put(Material.CARROT_ITEM, "carrot");
+		types.put(Material.MELON_SEEDS, "melon");
+		types.put(Material.PUMPKIN_SEEDS, "pumpkin");
+		
+		if(event.getClickedBlock().getType() == Material.SOIL && event.getItem() != null && types.keySet().contains(event.getItem().getType())) {
+			if(!player.hasPermission("easyplant."+types.get(event.getItem().getType()))) {
 				return;
 			}
 

@@ -2,9 +2,25 @@ name: Easy Plant
 main: de.wrenchbox.easyplant.EasyPlant
 author: AmShaegar
 website: http://wrenchbox.de
-version: 1.0
+version: 1.1
 description: Plant whole fields at once with one click.
 permissions:
-  easyplant.plant:
+  easyplant.*:
     description: Plant the whole field at once.
     default: true
+    children:
+      easyplant.seeds: true
+      easyplant.potato: true
+      easyplant.carrot: true
+      easyplant.melon: true
+      easyplant.pumpkin: true
+  easyplant.seeds:
+    description: Plant the whole field at once with seeds.
+  easyplant.potato:
+    description: Plant the whole field at once with potato.
+  easyplant.carrot:
+    description: Plant the whole field at once with carrot.
+  easyplant.melon:
+    description: Plant the whole field at once with melon.
+  easyplant.pumpkin:
+    description: Plant the whole field at once with pumpkin.

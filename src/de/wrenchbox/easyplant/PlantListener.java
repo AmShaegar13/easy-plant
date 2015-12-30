@@ -27,6 +27,9 @@ public class PlantListener implements Listener {
 			return;
 		}
 		Player player = event.getPlayer();
+		if(player.isSneaking()) {
+			return;
+		}
 
 		HashMap<Material, String> types = new HashMap<Material, String>();
 		types.put(Material.SEEDS, "seeds");

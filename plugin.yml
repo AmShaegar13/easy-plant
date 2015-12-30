@@ -2,7 +2,7 @@ name: Easy Plant
 main: de.wrenchbox.easyplant.EasyPlant
 author: AmShaegar
 website: http://wrenchbox.de
-version: 1.2.0
+version: 1.3.0
 description: Plant whole fields at once with one click.
 permissions:
   easyplant.*:
@@ -14,6 +14,7 @@ permissions:
       easyplant.carrot: true
       easyplant.melon: true
       easyplant.pumpkin: true
+      easyplant.nether_wart: true
   easyplant.seeds:
     description: Plant the whole field at once with seeds.
   easyplant.potato:
@@ -24,3 +25,5 @@ permissions:
     description: Plant the whole field at once with melon.
   easyplant.pumpkin:
     description: Plant the whole field at once with pumpkin.
+  easyplant.nether_wart:
+    description: Plant the whole field at once with nether warts.

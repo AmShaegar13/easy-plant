@@ -2,6 +2,7 @@ package de.wrenchbox.easyplant;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,14 +12,30 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class PlantListener implements Listener {
 
+	private Map<Material, Crop[]> types = new HashMap<Material, Crop[]>();
 	private LinkedList<Block> queue = new LinkedList<Block>(),
 			visited = new LinkedList<Block>();
 
 	public PlantListener() {
 		EasyPlant.getPlugin().getServer().getPluginManager().registerEvents(this, EasyPlant.getPlugin());
+		
+		Crop[] soilCrops = {
+				new Crop("seeds", Material.SEEDS, Material.CROPS),
+			new Crop("potato", Material.POTATO_ITEM, Material.POTATO),
+			new Crop("carrot", Material.CARROT_ITEM, Material.CARROT),
+			new Crop("melon", Material.MELON_SEEDS, Material.MELON_STEM),
+			new Crop("pumpkin", Material.PUMPKIN_SEEDS, Material.PUMPKIN_STEM)
+		};
+		types.put(Material.SOIL, soilCrops);
+		
+		Crop[] soulSandCrops = {
+				new Crop("nether_wart", Material.NETHER_STALK, Material.NETHER_WARTS)
+		};
+		types.put(Material.SOUL_SAND, soulSandCrops);
 	}
 
 	@EventHandler
@@ -26,53 +43,66 @@ public class PlantListener implements Listener {
 		if(event.getAction() != Action.RIGHT_CLICK_BLOCK) {
 			return;
 		}
+		
 		Player player = event.getPlayer();
 		if(player.isSneaking()) {
 			return;
 		}
-
-		HashMap<Material, String> types = new HashMap<Material, String>();
-		types.put(Material.SEEDS, "seeds");
-		types.put(Material.POTATO_ITEM, "potato");
-		types.put(Material.CARROT_ITEM, "carrot");
-		types.put(Material.MELON_SEEDS, "melon");
-		types.put(Material.PUMPKIN_SEEDS, "pumpkin");
 		
-		if(event.getClickedBlock().getType() == Material.SOIL && event.getItem() != null && types.keySet().contains(event.getItem().getType())) {
-			if(!player.hasPermission("easyplant."+types.get(event.getItem().getType()))) {
-				return;
+		Material soilType = event.getClickedBlock().getType();
+		if(!types.keySet().contains(soilType)) {
+			return;
+		}
+		
+		Crop crop = null;
+		Material seedType = event.getItem().getType();
+		
+		for(Crop c : types.get(soilType)) {
+			if(c.getSeed() == seedType) {
+				crop = c;
+				break;
 			}
+		}
+		
+		if(crop == null) {
+			return;
+		}
 
-			Block previous;
-			queue.add(event.getClickedBlock());
-			Material type = event.getItem().getType() == Material.POTATO_ITEM ? Material.POTATO :
-				event.getItem().getType() == Material.CARROT_ITEM ? Material.CARROT :
-					event.getItem().getType() == Material.MELON_SEEDS ? Material.MELON_STEM :
-						event.getItem().getType() == Material.PUMPKIN_SEEDS ? Material.PUMPKIN_STEM : Material.CROPS;
-			while((previous = queue.poll()) != null) {
-				for(int i = 0; i < 4; i++) {
-					if(event.getItem().getAmount() == 1) {
-						break;
-					}
-					Block relative = previous.getRelative(BlockFace.values()[i]).getRelative(BlockFace.DOWN);
-					for(int j = 0; j < 3; j++) {
-						if(relative.getType() == Material.SOIL) {
-							if(!event.getClickedBlock().equals(relative) && !visited.contains(relative)) {
-								queue.add(relative);
-								visited.add(relative);
-								if(relative.getRelative(BlockFace.UP).isEmpty()) {
-									event.getItem().setAmount(event.getItem().getAmount()-1);
-									relative.getRelative(BlockFace.UP).setType(type);
-								}
+		if(!player.hasPermission("easyplant."+crop.getName())) {
+			return;
+		}
+		
+		plantAdjacent(event.getClickedBlock(), event.getItem(), crop.getCrop());
+	}
+
+	private void plantAdjacent(Block clickedBlock, ItemStack placedItem, Material cropType) {
+		Material soilType = clickedBlock.getType();
+		Block previousBlock;
+		queue.add(clickedBlock);
+		while((previousBlock = queue.poll()) != null) {
+			for(int i = 0; i < 4; i++) {
+				if(placedItem.getAmount() == 1) {
+					break;
+				}
+				Block relative = previousBlock.getRelative(BlockFace.values()[i]).getRelative(BlockFace.DOWN);
+				for(int j = 0; j < 3; j++) {
+					if(relative.getType() == soilType) {
+						if(!clickedBlock.equals(relative) && !visited.contains(relative)) {
+							queue.add(relative);
+							visited.add(relative);
+							Block top = relative.getRelative(BlockFace.UP);
+							if(top.isEmpty()) {
+								placedItem.setAmount(placedItem.getAmount()-1);
+								top.setType(cropType);
 							}
-						} else {
-							relative = relative.getRelative(BlockFace.UP);
 						}
+					} else {
+						relative = relative.getRelative(BlockFace.UP);
 					}
 				}
 			}
-			queue.clear();
-			visited.clear();
 		}
+		queue.clear();
+		visited.clear();
 	}
 }

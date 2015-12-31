@@ -1,4 +1,4 @@
-package de.wrenchbox.easyplant;
+package de.amshaegar.easyplant;
 
 import java.util.HashMap;
 import java.util.LinkedList;

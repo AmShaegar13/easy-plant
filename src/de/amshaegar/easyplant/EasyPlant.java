@@ -1,4 +1,4 @@
-package de.wrenchbox.easyplant;
+package de.amshaegar.easyplant;
 
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;

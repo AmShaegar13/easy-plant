@@ -1,7 +1,7 @@
 name: Easy Plant
-main: de.wrenchbox.easyplant.EasyPlant
+main: de.amshaegar.easyplant.EasyPlant
 author: AmShaegar
-website: http://wrenchbox.de
+website: http://amshaegar.de
 version: 1.3.0
 description: Plant whole fields at once with one click.
 permissions:

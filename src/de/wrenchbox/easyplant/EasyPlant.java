@@ -6,21 +6,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class EasyPlant extends JavaPlugin {
 
-	private static Plugin plugin;
+  private static Plugin plugin;
 
-	@Override
-	public void onEnable() {
-		plugin = this;
-		new PlantListener();
-	}
+  @Override
+  public void onEnable() {
+    plugin = this;
+    new PlantListener();
+  }
 
-	@Override
-	public void onDisable() {
-		HandlerList.unregisterAll();
-	}
-	
-	public static Plugin getPlugin() {
-		return plugin;
-	}
-	
+  @Override
+  public void onDisable() {
+    HandlerList.unregisterAll();
+  }
+
+  public static Plugin getPlugin() {
+    return plugin;
+  }
+
 }

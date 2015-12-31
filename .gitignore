@@ -3,3 +3,6 @@
 /.class
 /.settings
 /bin
+*.iml
+/.idea
+/out

@@ -1,8 +1,3 @@
-/.classpath
-/.project
-/.class
-/.settings
-/bin
-*.iml
-/.idea
-/out
+/.*
+/*.iml
+*.class

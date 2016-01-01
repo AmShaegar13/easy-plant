@@ -1,0 +1,3 @@
+#!/bin/bash
+
+jar cf $MC_SERVER/plugins/update/EasyPlant.jar plugin.yml -C out/production/EasyPlant .

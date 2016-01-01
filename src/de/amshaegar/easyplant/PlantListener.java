@@ -20,7 +20,9 @@ public class PlantListener implements Listener {
   // NORTH, EAST, SOUTH, WEST
   private static final BlockFace[] CARDINAL_DIRS = Arrays.copyOfRange(BlockFace.values(), 0, 4);
 
-  private Map<Material, Crop[]> types = new HashMap<>();
+  private final Map<Material, Crop[]> types = new HashMap<>();
+  private final LinkedList<Block> visited = new LinkedList<>();
+  private final LinkedList<Block> queue = new LinkedList<>();
 
   public PlantListener() {
     EasyPlant.getPlugin().getServer().getPluginManager().registerEvents(this, EasyPlant.getPlugin());
@@ -80,37 +82,39 @@ public class PlantListener implements Listener {
       return;
     }
 
-    plantAdjacent(block, item, crop.getCrop());
+    plantAdjacents(block, item, crop.getCrop());
   }
 
-  private void plantAdjacent(final Block clickedBlock, final ItemStack placedItem, final Material cropType) {
+  private void plantAdjacents(final Block clickedBlock, final ItemStack placedItem, final Material cropType) {
+    System.out.println(clickedBlock + " start!");
     final Material soilType = clickedBlock.getType();
-    final LinkedList<Block> visited = new LinkedList<>();
-    final LinkedList<Block> queue = new LinkedList<>();
     Block previousBlock;
     queue.add(clickedBlock);
-    while((previousBlock = queue.poll()) != null) {
+    visited.add(clickedBlock);
+    while((previousBlock = queue.poll()) != null && placedItem.getAmount() > 1) {
+      Block base = previousBlock.getRelative(BlockFace.DOWN);
       for(BlockFace dir : CARDINAL_DIRS) {
-        if(placedItem.getAmount() == 1) {
-          return;
-        }
-        Block relative = previousBlock.getRelative(dir).getRelative(BlockFace.DOWN);
-        for(int i = 0; i < 3; i++) {
-          if(relative.getType() == soilType) {
-            if(!clickedBlock.equals(relative) && !visited.contains(relative)) {
-              queue.add(relative);
-              visited.add(relative);
-              final Block top = relative.getRelative(BlockFace.UP);
-              if(top.isEmpty()) {
-                placedItem.setAmount(placedItem.getAmount() - 1);
-                top.setType(cropType);
-              }
-            }
+        Block relative = base.getRelative(dir);
+        while(relative.getLocation().getBlockY() - 1 <= previousBlock.getLocation().getBlockY()) {
+          if(relative.getType() == soilType && !visited.contains(relative)) {
+            queue.add(relative);
+            visited.add(relative);
+            plantCrop(placedItem, cropType, relative);
           } else {
             relative = relative.getRelative(BlockFace.UP);
           }
         }
       }
+    }
+    queue.clear();
+    visited.clear();
+  }
+
+  private void plantCrop(final ItemStack placedItem, final Material cropType, final Block relative) {
+    final Block top = relative.getRelative(BlockFace.UP);
+    if(top.isEmpty()) {
+      placedItem.setAmount(placedItem.getAmount() - 1);
+      top.setType(cropType);
     }
   }
 }

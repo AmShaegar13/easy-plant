@@ -1,5 +1,6 @@
 package de.amshaegar.easyplant;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -16,9 +17,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlantListener implements Listener {
 
+  // NORTH, EAST, SOUTH, WEST
+  private static final BlockFace[] CARDINAL_DIRS = Arrays.copyOfRange(BlockFace.values(), 0, 4);
+
   private Map<Material, Crop[]> types = new HashMap<>();
-  private LinkedList<Block> queue = new LinkedList<>(),
-      visited = new LinkedList<>();
 
   public PlantListener() {
     EasyPlant.getPlugin().getServer().getPluginManager().registerEvents(this, EasyPlant.getPlugin());
@@ -39,23 +41,23 @@ public class PlantListener implements Listener {
   }
 
   @EventHandler
-  public void onPlant(PlayerInteractEvent event) {
+  public void onPlant(final PlayerInteractEvent event) {
     if(event.getAction() != Action.RIGHT_CLICK_BLOCK) {
       return;
     }
 
-    Player player = event.getPlayer();
+    final Player player = event.getPlayer();
     if(player.isSneaking()) {
       return;
     }
 
-    Material soilType = event.getClickedBlock().getType();
+    final Material soilType = event.getClickedBlock().getType();
     if(!types.keySet().contains(soilType)) {
       return;
     }
 
+    final Material seedType = event.getItem().getType();
     Crop crop = null;
-    Material seedType = event.getItem().getType();
 
     for(Crop c : types.get(soilType)) {
       if(c.getSeed() == seedType) {
@@ -68,31 +70,33 @@ public class PlantListener implements Listener {
       return;
     }
 
-    if(!player.hasPermission("easyplant."+crop.getName())) {
+    if(!player.hasPermission("easyplant." + crop.getName())) {
       return;
     }
 
     plantAdjacent(event.getClickedBlock(), event.getItem(), crop.getCrop());
   }
 
-  private void plantAdjacent(Block clickedBlock, ItemStack placedItem, Material cropType) {
-    Material soilType = clickedBlock.getType();
+  private void plantAdjacent(final Block clickedBlock, final ItemStack placedItem, final Material cropType) {
+    final Material soilType = clickedBlock.getType();
+    final LinkedList<Block> visited = new LinkedList<>();
+    final LinkedList<Block> queue = new LinkedList<>();
     Block previousBlock;
     queue.add(clickedBlock);
     while((previousBlock = queue.poll()) != null) {
-      for(int i = 0; i < 4; i++) {
+      for(BlockFace dir : CARDINAL_DIRS) {
         if(placedItem.getAmount() == 1) {
-          break;
+          return;
         }
-        Block relative = previousBlock.getRelative(BlockFace.values()[i]).getRelative(BlockFace.DOWN);
-        for(int j = 0; j < 3; j++) {
+        Block relative = previousBlock.getRelative(dir).getRelative(BlockFace.DOWN);
+        for(int i = 0; i < 3; i++) {
           if(relative.getType() == soilType) {
             if(!clickedBlock.equals(relative) && !visited.contains(relative)) {
               queue.add(relative);
               visited.add(relative);
-              Block top = relative.getRelative(BlockFace.UP);
+              final Block top = relative.getRelative(BlockFace.UP);
               if(top.isEmpty()) {
-                placedItem.setAmount(placedItem.getAmount()-1);
+                placedItem.setAmount(placedItem.getAmount() - 1);
                 top.setType(cropType);
               }
             }
@@ -102,7 +106,5 @@ public class PlantListener implements Listener {
         }
       }
     }
-    queue.clear();
-    visited.clear();
   }
 }

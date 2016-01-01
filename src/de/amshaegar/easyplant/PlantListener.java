@@ -1,10 +1,5 @@
 package de.amshaegar.easyplant;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -14,6 +9,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 public class PlantListener implements Listener {
 
@@ -46,17 +46,23 @@ public class PlantListener implements Listener {
       return;
     }
 
+    final Block block = event.getClickedBlock();
+    final ItemStack item = event.getItem();
+
+    if(block == null || item == null) {
+      return;
+    }
+
     final Player player = event.getPlayer();
     if(player.isSneaking()) {
       return;
     }
 
-    final Material soilType = event.getClickedBlock().getType();
+    final Material soilType = block.getType();
     if(!types.keySet().contains(soilType)) {
       return;
     }
-
-    final Material seedType = event.getItem().getType();
+    final Material seedType = item.getType();
     Crop crop = null;
 
     for(Crop c : types.get(soilType)) {
@@ -74,7 +80,7 @@ public class PlantListener implements Listener {
       return;
     }
 
-    plantAdjacent(event.getClickedBlock(), event.getItem(), crop.getCrop());
+    plantAdjacent(block, item, crop.getCrop());
   }
 
   private void plantAdjacent(final Block clickedBlock, final ItemStack placedItem, final Material cropType) {
